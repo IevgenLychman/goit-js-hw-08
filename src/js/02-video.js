@@ -15,3 +15,4 @@ player.on('timeupdate', throttle(onPlay, 1500));
 player.on('play', function () {
   player.getCurrentTime().then(function (seconds) {});
 });
+//
