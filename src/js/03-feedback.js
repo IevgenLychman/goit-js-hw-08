@@ -1,48 +1,36 @@
-import throttle from 'lodash.throttle'
+import throttle from 'lodash.throttle';
 
-const form = document.querySelector('.feedback-form');
-const LOCALSTORAGE_KEY = "feedback-form-state";
-const inputEl = document.querySelector('email');
-const textAreaEl = document.querySelector('message');
+const refs = {
+  form: document.querySelector('.feedback-form'),
+  email: document.querySelector('input'),
+  message: document.querySelector('textarea'),
+};
 
-form.addEventListener('input', throttle(saveMessage, 500))
-form.addEventListener("submit", submitForm);
-// let formData = { email : "", message: "" }
-updateIntput();
+const LOCALSTORAGE_KEY = 'feedback-form-state';
 
+refs.form.addEventListener('submit', formSubmit);
+refs.form.addEventListener('input', throttle(textInput, 300));
 
-function saveMessage(evt) {
-  evt.preventDefault();
-  const formData = {}
-  formData.email = form.elements.email.value;
-  formData.message = form.elements.message.value;
-    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(formData));
+populateForm();
+
+function formSubmit(e) {
+  e.preventDefault();
+  e.currentTarget.reset();
+  localStorage.removeItem(LOCALSTORAGE_KEY);
 }
 
-// function saveMessage(evt) {
-//   evt.preventDefault();
-//   const { elements: { email, message } } = evt.currentTarget;
-//   const formData = { email: email.value, message: message.value }
-//   // console.log(formData)
-//     localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(formData));
-// }
-
-function submitForm(evt) {
-  evt.preventDefault();
-  const { elements: { email, message } } = evt.currentTarget;
-  const formData = { email: email.value, message: message.value }
-  console.log(formData)
-  localStorage.removeItem(LOCALSTORAGE_KEY)
-  form.reset();
-
+function textInput(e) {
+  const text = {
+    email: refs.form.email.value,
+    message: refs.form.message.value,
+  };
+  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(text));
 }
 
-function updateIntput() {
-  if (localStorage.getItem(LOCALSTORAGE_KEY) === null) {
-    return
+function populateForm() {
+  const savedText = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY));
+  if (savedText) {
+    refs.form.elements.email.value = savedText.email;
+    refs.form.elements.message.value = savedText.message;
   }
-  const auditInput = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY))
-  form.elements.email.value = auditInput.email;
-  form.elements.message.value = auditInput.message
 }
-
